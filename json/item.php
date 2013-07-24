@@ -1,5 +1,12 @@
 <?php
 defined( '_JEXEC' ) or die( 'Restricted access' );
+/* Declare function to escape strings for JSON */
+function jsonEscapeString($string) { # list from www.json.org: (\b backspace, \f formfeed)
+	$escapers = array("\\", '"', "\n", "\r", "\t", "\x08", "\x0c");
+	$replacements = array("\\\\", '\"', '\n', '\r', '\t', '\f', '\b');
+	$result = str_replace($escapers, $replacements, $string);
+	return $result;
+}
 /* Set mime type to JSON */
 $doc =& JFactory::getDocument();
 $doc->setMimeEncoding('application/json');
@@ -10,23 +17,23 @@ if($callback!='') {
 }
 ?>{
 	"layout":"item",
-	"title":"<?php echo str_replace('"','\"',$this->item->title); ?>",
-	"alias":"<?php echo str_replace('"','\"',$this->item->alias); ?>",
-	"created":"<?php echo str_replace('"','\"',$this->item->created); ?>",
-	"modified":"<?php echo str_replace('"','\"',$this->item->modified); ?>",
-	"metakey":"<?php echo str_replace('"','\"',$this->item->metakey); ?>",
-	"metadesc":"<?php echo str_replace('"','\"',$this->item->metadesc); ?>",
-	"author":"<?php echo str_replace('"','\"',$this->item->author); ?>",
-	"description":"<?php echo str_replace('"','\"',$this->item->text); ?>",
+	"title":"<?php echo jsonEscapeString($this->item->title); ?>",
+	"alias":"<?php echo jsonEscapeString($this->item->alias); ?>",
+	"created":"<?php echo jsonEscapeString($this->item->created); ?>",
+	"modified":"<?php echo jsonEscapeString($this->item->modified); ?>",
+	"metakey":"<?php echo jsonEscapeString($this->item->metakey); ?>",
+	"metadesc":"<?php echo jsonEscapeString($this->item->metadesc); ?>",
+	"author":"<?php echo jsonEscapeString($this->item->author); ?>",
+	"description":"<?php echo jsonEscapeString($this->item->text); ?>",
 	"tags":[<?php 
 			if(count($this->item->tags)>0){
 				$tags = Array();
 				foreach($this->item->tags as $tag) {
-					array_push($tags,str_replace('"','\"',$tag->name)); 
+					array_push($tags,jsonEscapeString($tag->name)); 
 				}
 				echo '"'.implode('","',$tags).'"';
 			} ?>],
-	"url":"<?php echo str_replace('"','\"',JRoute::_(FlexicontentHelperRoute::getItemRoute($this->item->slug, $this->item->categoryslug))); ?>",
+	"url":"<?php echo jsonEscapeString(JRoute::_(FlexicontentHelperRoute::getItemRoute($this->item->slug, $this->item->categoryslug))); ?>",
 	"fields":{
 <?php
 if(isset($this->item->positions['renderonly'])) {
@@ -40,7 +47,7 @@ if(isset($this->item->positions['renderonly'])) {
 					$valuearray = Array();
 					foreach($unserval as $key => $val) {
 						$valueobj = '"'.str_replace('"','\"',$key).'":"';
-						$val = str_replace("\r",'',str_replace("\n",'\n',str_replace('"','\"',$val))); // Escape double quotes, escape line feeds, remove carrier return
+						$val = jsonEscapeString($val);
 						$valueobj .= $val.'"';
 						array_push($valuearray,$valueobj);
 					}
@@ -48,12 +55,12 @@ if(isset($this->item->positions['renderonly'])) {
 					$unserval = '{'.$unserval.'}';
 				}
 				else {
-					$unserval = '"'.str_replace("\r",'',str_replace("\n",'\n',str_replace('"','\"',$fieldvalue))).'"'; // Escape double quotes, escape line feeds, remove carrier return
+					$unserval = '"'.jsonEscapeString($fieldvalue).'"';
 				}
 				array_push($fieldvalues,$unserval);
 			}
 			$value = implode(',',$fieldvalues);
-			array_push($fields,"\t\t".'"'.str_replace('"','\"',$field->name).'":['.$value.']');
+			array_push($fields,"\t\t".'"'.jsonEscapeString($field->name).'":['.$value.']');
 		}
 	}
 	echo implode(",\n",$fields);

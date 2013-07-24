@@ -5,23 +5,23 @@ $i = 0;
 foreach($this->items as $item) { ?>
 		{
 			"layout":"item",
-			"title":"<?php echo str_replace('"','\"',$item->title); ?>",
-			"alias":"<?php echo str_replace('"','\"',$item->alias); ?>",
-			"created":"<?php echo str_replace('"','\"',$item->created); ?>",
-			"modified":"<?php echo str_replace('"','\"',$item->modified); ?>",
-			"metakey":"<?php echo str_replace('"','\"',$item->metakey); ?>",
-			"metadesc":"<?php echo str_replace('"','\"',$item->metadesc); ?>",
-			"author":"<?php echo str_replace('"','\"',$item->author); ?>",
-			"description":"<?php echo str_replace('"','\"',$item->text); ?>",
+			"title":"<?php echo jsonEscapeString($item->title); ?>",
+			"alias":"<?php echo jsonEscapeString($item->alias); ?>",
+			"created":"<?php echo jsonEscapeString($item->created); ?>",
+			"modified":"<?php echo jsonEscapeString($item->modified); ?>",
+			"metakey":"<?php echo jsonEscapeString($item->metakey); ?>",
+			"metadesc":"<?php echo jsonEscapeString($item->metadesc); ?>",
+			"author":"<?php echo jsonEscapeString($item->author); ?>",
+			"description":"<?php echo jsonEscapeString($item->text); ?>",
 			"tags":[<?php 
 					if(count($item->tags)>0){
 						$tags = Array();
 						foreach($item->tags as $tag) {
-							array_push($tags,str_replace('"','\"',$tag->name)); 
+							array_push($tags,jsonEscapeString($tag->name)); 
 						}
 						echo '"'.implode('","',$tags).'"';
 					} ?>],
-			"url":"<?php echo str_replace('"','\"',JRoute::_(FlexicontentHelperRoute::getItemRoute($item->slug, $item->categoryslug))); ?>",
+			"url":"<?php echo jsonEscapeString(JRoute::_(FlexicontentHelperRoute::getItemRoute($item->slug, $item->categoryslug))); ?>",
 			"fields":{
 <?php
 	if(isset($item->positions['renderonly'])) {
@@ -35,7 +35,7 @@ foreach($this->items as $item) { ?>
 						$valuearray = Array();
 						foreach($unserval as $key => $val) {
 							$valueobj = '"'.str_replace('"','\"',$key).'":"';
-							$val = str_replace("\r",'',str_replace("\n",'\n',str_replace('"','\"',$val))); // Escape double quotes, escape line feeds, remove carrier return
+							$val = jsonEscapeString($val);
 							$valueobj .= $val.'"';
 							array_push($valuearray,$valueobj);
 						}
@@ -43,12 +43,12 @@ foreach($this->items as $item) { ?>
 						$unserval = '{'.$unserval.'}';
 					}
 					else {
-						$unserval = '"'.str_replace("\r",'',str_replace("\n",'\n',str_replace('"','\"',$fieldvalue))).'"'; // Escape double quotes, escape line feeds, remove carrier return
+						$unserval = '"'.jsonEscapeString($fieldvalue).'"';
 					}
 					array_push($fieldvalues,$unserval);
 				}
 				$value = implode(',',$fieldvalues);
-				array_push($fields,"\t\t\t\t".'"'.str_replace('"','\"',$field->name).'":['.$value.']');
+				array_push($fields,"\t\t\t\t".'"'.jsonEscapeString($field->name).'":['.$value.']');
 			}
 		}
 		echo implode(",\n",$fields);
